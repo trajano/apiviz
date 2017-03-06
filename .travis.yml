@@ -1,0 +1,34 @@
+branches:
+  only:
+  - master
+language: java
+jdk:
+- oraclejdk8
+sudo: false
+cache:
+  directories:
+  - "$HOME/.m2"
+  - "$HOME/.sonar/cache"
+addons:
+  apt:
+    packages:
+    - graphviz
+  sonarqube: true
+env:
+  global:
+  - secure: fuaiGx9yMfEVTABVg4tusOXs8dKiA9i7dm0S4X7lU0rUAVdyXbLyEsMdtR5Dt6nFtRANGjVoMNi7SiH/7CLS+pXXPyPv6YUTMIOd0RT7KcYp31jXH2k4X7ay7nSi+oBz4uHb+4Wpa3xvvWqYKIUbt9o51mZPqiB2bWBbjjf5iy1TD+Vn+8l30g+y6LVnu5XYxMaYQ2EOvd0cdPsy3mBD1xS6vXU7ST2UHkjoKZlf0ATg1KwK9SAuA80oAyHCGAF5k4TYSN719JiVIbf4LfzH2QlSmRiWb1FUWyGwp3jG884vYn2nHYIAkjD67qxK2jpgLE5A73EyYMZlCfoD5Ivc2j6+uOz6a6d/xXcOIZ+KXEgySgNOO1Nq+GfzxQcoeMYmjelYQqortF6m9z268W9ZCyb0PlQ4LjKhtUBLqWcTdsZ9YRK/ry6Lejncmu884Q7wOFhk+10Ij0+JTPSjv1ja+GvEZQg1UZwY7HbQprNsmLI4+VS8CUVM5wnk5cW/ZAp5D6O8lknYqgu6gg3kWJ+7GL8YQgErfwPXHn+IsZJml5R9kxRZOwcORyA+9qUnedSBMDZdGmyqR/UdYvD0LSmWLDuUdnF1xUfQl5fLEL5SMSnj4EPKjg/u3/npnhSsoaHmJxlXLVlXU+fISGNYBVKCenHo6JBLjoAOtDSA7J0cg0A=
+  - secure: qxdZHXwxp6nGB6ImFA+JAoaxhUThouTxN0ymTL+8HPEiekgRCfAsKhfA69Pn1YWwk7KT1kROilkRP28NtpUc+ZLfd0xgLFXp4UB+LbMfW1zJyFiBOPMbE67uO29FrRqwWpRW8+k2B1NVq4FplpND1xyU+Nkv4zUz1FlkSbf1HJYaLWVGniED6rFT/dnYcEjw7L/qpmUIzHU/Q3YlNypFZZ6E+LwBQH5XGUf5ZFOeHMAMeIfQ/lEnrsLtqN+Pp7SkXhv8wGnEgEw9SMlHt69QPi6Wo0oOCSYkBxVbrCEGrkeGBz4cSQm/VMt5frdH0vEO3oMpZlcwaV5kFozm5LB8moUsTgAw1xqARPf1bQTyR9fp7ZH+BVsskni25BvBLw/SX84ctaTnxKVyFE3b63A4dhTp9SDLAvJI/+j+Et3GBPOCIbej0qcBU9gm8KwdJ63bdSrSib/sc8fasTKJxEVd7OfZoDMpeW/OZkY7EM5/3TZ3zQn0ltIW67fECPwYJTnAovmYRqGZN5/1NrYYI2pXdcJKl7FmOmGXhTLavn7DHsue0oDDJvtuuyIleTnMrbGh/p8PaXyqAu4w+mObeC42aXebikundDuux98zAt8Igo2bEKR1vSk7DFPtVzROq5Nd0QLyIi/iHJ+FDKUo8i52yUdJN0MExYusvbSgrmxUTtQ=
+install:
+- mvn dependency:go-offline
+before_script:
+- mvn clean
+script:
+- mvn install site
+after_success:
+- mvn sonar:sonar
+- if [[ ! $TRAVIS_PULL_REQUEST =~ ^[0-9]+$ ]]; then mvn deploy site-deploy ; fi
+before_install:
+- openssl aes-256-cbc -K $encrypted_59082e46ec81_key -iv $encrypted_59082e46ec81_iv
+  -in deploy-keys.tar.enc -out deploy-keys.tar -d
+  -in deploy-keys.tar.enc -out deploy-keys.tar -d
+- tar xf deploy-keys.tar -C $HOME
