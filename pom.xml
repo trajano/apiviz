@@ -45,9 +45,9 @@
   </prerequisites>
 
   <scm>
-    <connection>scm:git:https://git.grahamedgecombe.com/grahamedgecombe/apiviz</connection>
-    <developerConnection>scm:git:git@github.com:grahamedgecombe/apiviz.git</developerConnection>
-    <url>https://github.com/grahamedgecombe/apiviz</url>
+    <connection>scm:git:https://github.com/trajano/${module.id}</connection>
+    <developerConnection>scm:git:ssh://git@github.com/trajano/${module.id}.git</developerConnection> 
+    <url>https://github.com/trajano/${module.id}</url>
   </scm>
 
   <dependencies>
