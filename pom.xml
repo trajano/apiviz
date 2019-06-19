@@ -53,17 +53,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.sun</groupId>
-      <artifactId>tools</artifactId>
-      <version>1.8.0</version>
-      <scope>system</scope>
-      <systemPath>${java.home}/../lib/tools.jar</systemPath>
-    </dependency>
-    <dependency>
       <groupId>guru.nidi</groupId>
       <artifactId>jdepend</artifactId>
       <version>2.9.5</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -90,10 +82,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.8.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
       <plugin>

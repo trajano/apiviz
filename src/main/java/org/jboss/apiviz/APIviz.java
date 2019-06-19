@@ -23,11 +23,11 @@
 package org.jboss.apiviz;
 
 import com.sun.javadoc.*;
-import com.sun.tools.doclets.standard.Standard;
 import jdepend.framework.JDepend;
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;
 import jdepend.framework.PackageFilter;
+import jdk.javadoc.doclet.StandardDoclet;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,6 @@ import static org.jboss.apiviz.Constant.*;
 /**
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
 public class APIviz {
 
@@ -49,10 +48,12 @@ public class APIviz {
             Pattern.CASE_INSENSITIVE);
 
     public static boolean start(RootDoc root) {
+        StandardDoclet standard = new StandardDoclet();
+        standard.run(null);
         root = new APIvizRootDoc(root);
-        if (!Standard.start(root)) {
-            return false;
-        }
+//        if (!standard.init(root)) {
+//            return false;
+//        }
 
         if (!Graphviz.isAvailable(root)) {
             root.printWarning("Graphviz is not found.");
@@ -69,10 +70,10 @@ public class APIviz {
             }
             generatePackageSummaries(root, graph, outputDirectory);
             generateClassDiagrams(root, graph, outputDirectory);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             root.printError(
                     "An error occurred during diagram generation: " +
-                    t.toString());
+                            t.toString());
             t.printStackTrace();
             return false;
         }
@@ -80,20 +81,20 @@ public class APIviz {
     }
 
     public static boolean validOptions(String[][] options, DocErrorReporter errorReporter) {
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (OPTION_SOURCE_CLASS_PATH.equals(o[0])) {
                 File[] cp = getClassPath(options);
                 if (cp.length == 0) {
                     errorReporter.printError(
                             OPTION_SOURCE_CLASS_PATH +
-                            " requires at least one valid class path.");
+                                    " requires at least one valid class path.");
                     return false;
                 }
-                for (File f: cp) {
+                for (File f : cp) {
                     if (!f.exists() || !f.canRead()) {
                         errorReporter.printError(
                                 f.toString() +
-                                " doesn't exist or is not readable.");
+                                        " doesn't exist or is not readable.");
                         return false;
                     }
                 }
@@ -101,7 +102,7 @@ public class APIviz {
         }
 
         List<String[]> newOptions = new ArrayList<String[]>();
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (OPTION_CATEGORY.equals(o[0])) {
                 continue;
             }
@@ -115,9 +116,10 @@ public class APIviz {
             newOptions.add(o);
         }
 
-        return Standard.validOptions(
-                newOptions.toArray(new String[newOptions.size()][]),
-                errorReporter);
+        return false;
+//        return StandardDoclet.validOptions(
+//                newOptions.toArray(new String[newOptions.size()][]),
+//                errorReporter);
     }
 
     public static int optionLength(String option) {
@@ -133,14 +135,14 @@ public class APIviz {
             return 1;
         }
 
-        int answer = Standard.optionLength(option);
-
+//        int answer = StandardDoclet.optionLength(option);
+        int answer = 0;
         if (option.equals(OPTION_HELP)) {
             // Print the options provided by APIviz.
             System.out.println();
             System.out.println("Provided by APIviz doclet:");
-            System.out.println(OPTION_SOURCE_CLASS_PATH   + " <pathlist>     Specify where to find source class files");
-            System.out.println(OPTION_NO_PACKAGE_DIAGRAM  + "               Do not generate the package diagram in the overview summary");
+            System.out.println(OPTION_SOURCE_CLASS_PATH + " <pathlist>     Specify where to find source class files");
+            System.out.println(OPTION_NO_PACKAGE_DIAGRAM + "               Do not generate the package diagram in the overview summary");
             System.out.println(OPTION_CATEGORY + "                       <category>[:<fillcolor>[:<linecolor>]] ");
             System.out.println("                                    Color for items marked with " + TAG_CATEGORY);
         }
@@ -149,7 +151,8 @@ public class APIviz {
     }
 
     public static LanguageVersion languageVersion() {
-        return Standard.languageVersion();
+        //return Standard.languageVersion();
+        return null;
     }
 
     private static void generateOverviewSummary(RootDoc root, ClassDocGraph graph, File outputDirectory) throws IOException {
@@ -169,7 +172,7 @@ public class APIviz {
         JDepend jdepend = new JDepend(packageFilter.excludingRest());
 
         File[] classPath = getClassPath(root.options());
-        for (File e: classPath) {
+        for (File e : classPath) {
             if (e.isDirectory()) {
                 root.printNotice(
                         "Included into dependency analysis: " + e);
@@ -189,11 +192,11 @@ public class APIviz {
         } else {
             root.printWarning(
                     "Please make sure that the '" +
-                    OPTION_SOURCE_CLASS_PATH +
-                    "' option was specified correctly.");
+                            OPTION_SOURCE_CLASS_PATH +
+                            "' option was specified correctly.");
             root.printWarning(
                     "Package dependency diagram will not be generated " +
-                    "to avoid the inaccurate result.");
+                            "to avoid the inaccurate result.");
         }
     }
 
@@ -206,10 +209,10 @@ public class APIviz {
                     "JDepend was not able to locate any compiled class files.");
             correctClasspath = false;
         } else {
-            for (ClassDoc c: root.classes()) {
+            for (ClassDoc c : root.classes()) {
                 if (c.containingPackage() == null ||
-                    c.containingPackage().name() == null ||
-                    ClassDocGraph.isHidden(c.containingPackage())) {
+                        c.containingPackage().name() == null ||
+                        ClassDocGraph.isHidden(c.containingPackage())) {
                     continue;
                 }
 
@@ -219,7 +222,7 @@ public class APIviz {
                 if (jpkg != null) {
                     Collection<JavaClass> jclasses = jpkg.getClasses();
                     if (jclasses != null) {
-                        for (JavaClass jcls: jclasses) {
+                        for (JavaClass jcls : jclasses) {
                             if (fqcn.equals(jcls.getName())) {
                                 found = true;
                                 break;
@@ -240,17 +243,17 @@ public class APIviz {
     }
 
     private static void generatePackageSummaries(RootDoc root, ClassDocGraph graph, File outputDirectory) throws IOException {
-        for (PackageDoc p: getPackages(root).values()) {
+        for (PackageDoc p : getPackages(root).values()) {
             instrumentDiagram(
                     root, outputDirectory,
                     p.name().replace('.', File.separatorChar) +
-                    File.separatorChar + "package-summary",
+                            File.separatorChar + "package-summary",
                     graph.getPackageSummaryDiagram(p));
         }
     }
 
     private static void generateClassDiagrams(RootDoc root, ClassDocGraph graph, File outputDirectory) throws IOException {
-        for (ClassDoc c: root.classes()) {
+        for (ClassDoc c : root.classes()) {
             if (c.containingPackage() == null) {
                 instrumentDiagram(
                         root, outputDirectory,
@@ -260,7 +263,7 @@ public class APIviz {
                 instrumentDiagram(
                         root, outputDirectory,
                         c.containingPackage().name().replace('.', File.separatorChar) +
-                        File.separatorChar + c.name(),
+                                File.separatorChar + c.name(),
                         graph.getClassDiagram(c));
             }
         }
@@ -268,9 +271,9 @@ public class APIviz {
 
     static Map<String, PackageDoc> getPackages(RootDoc root) {
         Map<String, PackageDoc> packages = new TreeMap<String, PackageDoc>();
-        for (ClassDoc c: root.classes()) {
+        for (ClassDoc c : root.classes()) {
             PackageDoc p = c.containingPackage();
-            if(!packages.containsKey(p.name())) {
+            if (!packages.containsKey(p.name())) {
                 packages.put(p.name(), p);
             }
         }
@@ -291,11 +294,11 @@ public class APIviz {
         if (!htmlFile.exists()) {
             // Shouldn't reach here anymore.
             // I'm retaining the code just in case.
-            for (;;) {
+            for (; ; ) {
                 int idx = filename.lastIndexOf(File.separatorChar);
                 if (idx > 0) {
                     filename = filename.substring(0, idx) + '.' +
-                               filename.substring(idx + 1);
+                            filename.substring(idx + 1);
                 } else {
                     // Give up (maybe missing)
                     return;
@@ -326,12 +329,12 @@ public class APIviz {
                 style += "margin-bottom: 1em;";
             }
             String newContent =
-                oldContent.substring(0, matcher.end()) + NEWLINE +
-                mapContent +
-                "<div id=\"apivizContainer\" style=\"" + style + "\">" +
-                "<img src=\"" + pngFile.getName() +
-                        "\" usemap=\"#APIVIZ\" border=\"0\"></div>" +
-                oldContent.substring(matcher.end());
+                    oldContent.substring(0, matcher.end()) + NEWLINE +
+                            mapContent +
+                            "<div id=\"apivizContainer\" style=\"" + style + "\">" +
+                            "<img src=\"" + pngFile.getName() +
+                            "\" usemap=\"#APIVIZ\" border=\"0\"></div>" +
+                            oldContent.substring(matcher.end());
             FileUtil.writeFile(htmlFile, newContent);
         } finally {
             mapFile.delete();
@@ -339,7 +342,7 @@ public class APIviz {
     }
 
     private static File getOutputDirectory(String[][] options) {
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (o[0].equals("-d")) {
                 return new File(o[1]);
             }
@@ -350,7 +353,7 @@ public class APIviz {
     }
 
     private static boolean shouldGeneratePackageDiagram(String[][] options) {
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (o[0].equals(OPTION_NO_PACKAGE_DIAGRAM)) {
                 return false;
             }
@@ -361,7 +364,7 @@ public class APIviz {
     private static File[] getClassPath(String[][] options) {
         Set<File> cp = new LinkedHashSet<File>();
 
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (o[0].equals(OPTION_SOURCE_CLASS_PATH)) {
                 String[] cps = o[1].split(File.pathSeparator);
                 for (String p : cps) {
@@ -370,7 +373,7 @@ public class APIviz {
             }
         }
 
-        for (String[] o: options) {
+        for (String[] o : options) {
             if (o[0].equals("-classpath")) {
                 String[] cps = o[1].split(File.pathSeparator);
                 for (String p : cps) {
